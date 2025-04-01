@@ -11,6 +11,7 @@ Las principales variables analizadas son:
 - Humedad relativa (%)
 - Precipitación (mm)
 - Velocidad del viente (km/h)
+
 Obtenido de [Meteostat](https://meteostat.net/es/) y [Open-Meteo](https://open-meteo.com/)
 
 🏙️**Variables poblacionales**
