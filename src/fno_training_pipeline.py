@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Mar  8 12:16:29 2025
+Created on Sat Mar  8  2025
 
-@author: saray
+@author: sarayldm
 """
 
-# Bibliotecas necesarias
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -144,11 +144,11 @@ def model_evaluation(X,y, show_feature_importance=False):
                     importances = classifier.feature_importances_
                     indices = np.argsort(importances)[::-1]
                     print(f"\nImportancia de características para {model_name}:")
-                    for idx in indices[:10]: # Mostrar solo las 10 más importantes
+                    for idx in indices[:10]: 
                         print(f"{X.columns[idx]}: {importances[idx]:.4f}")
                     
                     # Graficar la importancia de las características
-                    plt.figure(figsize=(10, 6))
+                    plt.figure(figsize=(10, 6), dpi=200)
                     sns.barplot(x=importances[indices[:10]], y=X.columns[indices[:10]], palette='viridis')
                     plt.title(f'Importancia de las características - {model_name}', 
                               fontsize=14, fontweight='bold')
@@ -158,15 +158,15 @@ def model_evaluation(X,y, show_feature_importance=False):
                 
                 # Para modelos lineales como Regresión Logística
                 elif hasattr(classifier, 'coef_'):
-                    coef = classifier.coef_[0]  # Extraer los coeficientes
-                    importances = np.abs(coef)  # Tomamos el valor absoluto de los coeficientes
-                    indices = np.argsort(importances)[::-1]  # Ordenar por la importancia
+                    coef = classifier.coef_[0]  
+                    importances = np.abs(coef) 
+                    indices = np.argsort(importances)[::-1]  
                     print(f"\nImportancia de las características para {model_name}:")
-                    for idx in indices[:10]:  # Mostrar solo las 10 más importantes
+                    for idx in indices[:10]:  
                         print(f"{X.columns[idx]}: {importances[idx]:.4f}")
 
                     # Graficar la importancia de las características
-                    plt.figure(figsize=(10, 6))
+                    plt.figure(figsize=(10, 6), dpi=200)
                     sns.barplot(x=importances[indices[:10]], y=X.columns[indices[:10]], palette='viridis')
                     plt.title(f'Importancia de las características - {model_name}', 
                               fontsize=16, fontweight='bold')
@@ -174,7 +174,7 @@ def model_evaluation(X,y, show_feature_importance=False):
                     plt.ylabel('Característica', fontsize=12)
                     plt.show()
         
-        return sorted(results, key=lambda x: x['metrics']['recall'], reverse=True) #Metrica que mas nos interesa
+        return sorted(results, key=lambda x: x['metrics']['recall'], reverse=True) #Metrica de interes 
 
     except Exception as e:
         print(f"Error en el entrenamiento: {str(e)}")
@@ -257,19 +257,20 @@ def save_result(results, best_model, country):
         print(f"Error en el guardado: {str(e)}")
         raise
 
-# Gráfico distribución ausencia - presencia   
+# Gráfico distribución variable objetivo 
 def plot_outbreak_distribution(df, country):
     counts = df['outbreak'].value_counts().sort_index()
     sns.set_style("whitegrid")
-    plt.figure(figsize=(6, 4))
+    plt.figure(figsize=(8, 6), dpi=200)
     ax = sns.barplot(x=counts.index, y=counts.values, palette=['#1f77b4', '#ff7f0e'])
-    plt.xticks([0, 1], [r'$\mathbf{0}$' + '\nAusencia de casos', r'$\mathbf{1}$' + '\nPresencia de casos'], ha='center')
-    plt.ylabel('Frecuencia')
+    plt.xticks([0, 1], [r'$\mathbf{0}$' + '\nAusencia de casos', r'$\mathbf{1}$' + '\nPresencia de casos'], 
+               ha='center', fontsize=12)
+    plt.ylabel('Frecuencia', fontsize=12)
     plt.xlabel("")
-    #plt.title(f'Distribución de la variable "outbreak" - {country}')
+    plt.title(f'Distribución de la variable "outbreak" - {country}', fontsize=14, fontweight='bold')
     
     for i, v in enumerate(counts.values):
-        ax.text(i, v/2, str(v), ha='center', va='center', fontsize=12, fontweight='bold', color='white')
+        ax.text(i, v/2, str(v), ha='center', va='center', fontsize=14, fontweight='bold', color='white')
 
     plt.show()   
     
@@ -283,7 +284,7 @@ def transfer_learning(best_model, X_es, y_es):
         # Aplicar warm_start solo si el modelo lo permite
         if isinstance(classifier, (RandomForestClassifier, GradientBoostingClassifier)): # Verificar si es uno de estos dos modelos
             classifier.warm_start = True
-            classifier.n_estimators += int(classifier.n_estimators * 0.2) # Aumenta en un 20%
+            classifier.n_estimators += int(classifier.n_estimators * 0.2) # Aumentar en un 20%
             
         best_model.fit(X_es, y_es)
 
@@ -292,6 +293,50 @@ def transfer_learning(best_model, X_es, y_es):
     except Exception as e:
         print(f"Error en el transfer learning: {str(e)}")
         raise
+
+# Importancia de las caracteristicas despues del transfer learning
+def feature_importance_TL(model, X):
+    classifier = model.named_steps['classifier']
+
+    # Random Forest, Grandient Boosting   
+    if isinstance(classifier, RandomForestClassifier):
+        model_name = "Random Forest"
+    elif isinstance(classifier, GradientBoostingClassifier):
+        model_name = "Gradient Boosting"
+
+    if hasattr(classifier, 'feature_importances_'):
+        importances = classifier.feature_importances_
+        indices = np.argsort(importances)[::-1]
+        print(f"\nImportancia de características después del transfer learning:")
+        for idx in indices[:10]: 
+            print(f"{X.columns[idx]}: {importances[idx]:.4f}")
+
+        # Graficar la importancia de las características
+        plt.figure(figsize=(10, 6), dpi=200)
+        sns.barplot(x=importances[indices[:10]], y=X.columns[indices[:10]], palette='viridis')
+        plt.title(f'Importancia de las características - {model_name}', 
+                      fontsize=16, fontweight='bold')
+        plt.xlabel('Importancia', fontsize=12)
+        plt.ylabel('Característica', fontsize=12)
+        plt.show()
+
+    # Logistic Regression    
+    elif hasattr(classifier, 'coef_'):
+        coef = classifier.coef_[0]  
+        importances = np.abs(coef)  
+        indices = np.argsort(importances)[::-1]  
+        print(f"\nImportancia de las características después del transfer learning:")
+        for idx in indices[:10]:  
+            print(f"{X.columns[idx]}: {importances[idx]:.4f}")
+
+        # Graficar la importancia de las características
+        plt.figure(figsize=(10, 6), dpi=200)
+        sns.barplot(x=importances[indices[:10]], y=X.columns[indices[:10]], palette='viridis')
+        plt.title(f'Importancia de las características - Logistic Regression', 
+                      fontsize=16, fontweight='bold')
+        plt.xlabel('Importancia', fontsize=12)
+        plt.ylabel('Característica', fontsize=12)
+        plt.show()
 
 # ----------------------------
 # 6. EJECUCION PRINCIPAL
@@ -357,6 +402,9 @@ if __name__ == "__main__":
         }
 
     print("Métricas después de transfer learning:", metrics_es)
+
+    # Mostrar la importancia de las características después del transfer learning
+    feature_importance_TL(model_spain, X_es)
 
     # Guardar metricas en CSV    
     data_es = []  

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Mar  8 13:16:48 2025
+Created on Sat Mar  8  2025
 
-@author: saray
+@author: sarayldm
 """
-#Bibliotecas necesarias
+
 import numpy as np
 import joblib
 import pandas as pd
@@ -12,8 +12,9 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 
 # 1. Cargar el mapa de España
-mapa_espana = gpd.read_file("https://raw.githubusercontent.com/codeforgermany/click_that_hood/master/public/data/spain-provinces.geojson")
-# Definir los límites (coordenadas de latitud y longitud para la Península Ibérica)
+spain_map = gpd.read_file("https://raw.githubusercontent.com/codeforgermany/click_that_hood/master/public/data/spain-provinces.geojson")
+
+# Definir los límites (coordenadas de latitud y longitud)
 limites = [-10, 5, 36, 43]  # [long_min, long_max, lat_min, lat_max]
 
 # 2. Calcular month_sin y month_cos para agosto (mes 8)
@@ -65,13 +66,13 @@ datos_predicciones = pd.DataFrame({'provincia': datos_agosto['provincia'], 'pred
 
 # 8. Unir con el mapa
 # Recortar el mapa a estos límites
-mapa_espana = mapa_espana.cx[limites[0]:limites[1], limites[2]:limites[3]]
-mapa_espana['name'] = mapa_espana['name'].str.split('/').str[0]
-mapa_espana['name'] = mapa_espana['name'].replace({'València': 'Valencia'})
-mapa_espana = mapa_espana.merge(datos_predicciones, how='left', left_on='name', right_on='provincia')
-mapa_espana['prediccion'] = mapa_espana['prediccion'].fillna(0)
+spain_map = spain_map.cx[limites[0]:limites[1], limites[2]:limites[3]]
+spain_map['name'] = spain_map['name'].str.split('/').str[0]
+spain_map['name'] = spain_map['name'].replace({'València': 'Valencia'})
+spain_map = spain_map.merge(datos_predicciones, how='left', left_on='name', right_on='provincia')
+spain_map['prediccion'] = spain_map['prediccion'].fillna(0)
 
-# 9. Asignar colores (Rojo = brote, Gris = no brote)
+# 9. Asignar colores (Rojo = Presencia de casos, Verde = Ausencia de casos)
 provincias = ['Barcelona', 'Sevilla', 'Valencia'] 
 
 def asignar_color(row):
@@ -80,21 +81,21 @@ def asignar_color(row):
     else:
         return 'lightgrey' if row['prediccion'] == 0 else 'red'
 
-colores = mapa_espana.apply(asignar_color, axis=1)
+colores = spain_map.apply(asignar_color, axis=1)
 
 
 # 10 Dibujar el mapa con la predicción de agosto
-fig, ax = plt.subplots(1, 1, figsize=(12, 12))
-mapa_espana.plot(ax=ax, color=colores, edgecolor='black', linewidth=0.8)
+fig, ax = plt.subplots(1, 1, figsize=(12, 12), dpi=200)
+spain_map.plot(ax=ax, color=colores, edgecolor='black', linewidth=0.8)
 
-# Agregar nombres de provincias
-for idx, row in mapa_espana.iterrows():
+# Agregar nombres de las provincias (opcional)
+for idx, row in spain_map.iterrows():
     if row['name'] in provincias_info:
         plt.text(row.geometry.centroid.x, row.geometry.centroid.y - 0.05,  
                  row['name'], fontsize=10, ha='center', color='black', fontweight='bold')
 
 # Título y leyenda
-plt.title("Predicción de casos de VNO en España (Agosto 2025)", fontsize=16, fontweight='bold')
+plt.title("Predicción de casos de VNO en España (Agosto 2025)", fontsize=18, fontweight='bold')
 
 from matplotlib.lines import Line2D
 handles = [
@@ -102,7 +103,7 @@ handles = [
     Line2D([0], [0], marker='o', color='w', markerfacecolor='lightgreen', markersize=10, label='Ausencia de casos'),
     Line2D([0], [0], marker='o', color='w', markerfacecolor='lightgrey', markersize=10, label='Otras provincias')
 ]
-ax.legend(handles=handles, loc='lower left', fontsize=12)
+ax.legend(handles=handles, loc='lower right', fontsize=14)
 
 plt.axis('off')
 plt.tight_layout()
