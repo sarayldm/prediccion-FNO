@@ -4,7 +4,6 @@ Este proyecto aplica **machine learning supervisado** para predecir la presencia
 
 ## Fuente de datos
 Los datos utilizados en este proyecto provienen de distintas fuentes oficiales y bases de datos abiertas.
-
 Las principales variables analizadas son: 
 
 🌤️**Variables climáticas**
@@ -16,11 +15,13 @@ Obtenido de [Meteostat](https://meteostat.net/es/) y [Open-Meteo](https://open-m
 
 🏙️**Variables poblacionales**
 - Censo de la población
+
 Obtenido de [Istat](https://www.istat.it/) y [INE](https://www.ine.es/)
 
 🌍**Variables geoespaciales**
 - Latitud del centro geograáfico de la provincia.
 - Latitud del centro geográfico de la provincia.
+
 Obtenido de [GeoPy](https://geopy.readthedocs.io/en/stable/)
 
 ## Evaluación del modelo
